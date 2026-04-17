@@ -1,0 +1,23 @@
+# Data Files
+healthcare.db
+Healthcare_Data.xlsx
+PowerBI_Export.csv
+
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary Scripts
+inspect_kaggle.py
+verify_data.py
+
+# OS Files
+.DS_Store
+Thumbs.db
