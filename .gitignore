@@ -20,4 +20,5 @@ verify_data.py
 
 # OS Files
 .DS_Store
-Thumbs.db
+# AI Models
+*.pkl
