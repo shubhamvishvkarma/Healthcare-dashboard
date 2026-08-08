@@ -6,3 +6,4 @@ openpyxl
 seaborn
 scikit-learn
 streamlit-authenticator
+sqlalchemy
