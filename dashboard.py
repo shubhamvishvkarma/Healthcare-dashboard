@@ -518,19 +518,37 @@ elif st.session_state.get("authentication_status") is None:
 # --- DATA LAYER ---
 @st.cache_data
 def load_data():
+    # --- Try SQLite DB first (local dev) ---
     try:
-        with engine.connect() as conn:
-            df = pd.read_sql_query("SELECT * FROM ClinicalData", conn)
-        
-        if 'DateofAdmission' in df.columns:
-            df['DateofAdmission'] = pd.to_datetime(df['DateofAdmission'])
-        if 'DischargeDate' in df.columns:
-            df['DischargeDate'] = pd.to_datetime(df['DischargeDate'])
-        
-        # Add synthetic PatientID column using index
-        df['PatientID'] = df.index.map(lambda x: f"PAT{x+1:04d}")
-        
-        return df
+        if os.path.exists("healthcare.db"):
+            with engine.connect() as conn:
+                df = pd.read_sql_query("SELECT * FROM ClinicalData", conn)
+            if 'DateofAdmission' in df.columns:
+                df['DateofAdmission'] = pd.to_datetime(df['DateofAdmission'])
+            if 'DischargeDate' in df.columns:
+                df['DischargeDate'] = pd.to_datetime(df['DischargeDate'])
+            df['PatientID'] = df.index.map(lambda x: f"PAT{x+1:04d}")
+            return df
+    except Exception:
+        pass
+
+    # --- Fallback: Load from Excel (Streamlit Cloud / no DB) ---
+    try:
+        excel_path = "Healthcare_Data.xlsx"
+        if os.path.exists(excel_path):
+            df = pd.read_excel(excel_path)
+            if 'DateofAdmission' in df.columns:
+                df['DateofAdmission'] = pd.to_datetime(df['DateofAdmission'])
+            if 'DischargeDate' in df.columns:
+                df['DischargeDate'] = pd.to_datetime(df['DischargeDate'])
+            # Compute LengthOfStay if missing
+            if 'LengthOfStay' not in df.columns and 'DateofAdmission' in df.columns and 'DischargeDate' in df.columns:
+                df['LengthOfStay'] = (df['DischargeDate'] - df['DateofAdmission']).dt.days.fillna(0).astype(int)
+            df['PatientID'] = df.index.map(lambda x: f"PAT{x+1:04d}")
+            return df
+        else:
+            st.error("❌ Data file not found. Please ensure Healthcare_Data.xlsx is present.")
+            return None
     except Exception as e:
         st.error(f"Error loading healthcare data: {e}")
         return None

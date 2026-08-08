@@ -1,6 +1,5 @@
 # Data Files
 healthcare.db
-Healthcare_Data.xlsx
 PowerBI_Export.csv
 
 # Environments
@@ -20,5 +19,3 @@ verify_data.py
 
 # OS Files
 .DS_Store
-# AI Models
-*.pkl
